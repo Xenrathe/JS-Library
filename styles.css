@@ -1,0 +1,136 @@
+h1 {
+  margin: 10px auto;
+  text-align: center;
+}
+
+#shelves {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.book {
+  background-image: url("assets/book-outline.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 400px;
+  width: 350px;
+  min-width: 350px;
+}
+
+.book .text {
+  padding: 120px 50px 50px 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+.book .text .title {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.book button, .button {
+  font-size: 20px;
+
+  border: black 2px solid;
+  transition: all 0.5s;
+}
+
+button:hover, .button:hover {
+  border-radius: 7px;
+  transform: scale(1.1);
+  transition: all 0.3s;
+}
+
+button:active, .button:active {
+  border-radius: 2px;
+  transform: scale(0.9);
+  transition: all 0.2s;
+}
+
+.book.new button{
+  margin-top: 50%;
+  padding: 10px 20px;
+  background-color: blanchedalmond;
+}
+
+.book .actions button {
+  font-size: 15px;
+  width: 100px;
+}
+
+.book .actions .delete {
+  background-color: rgb(255, 205, 205);
+}
+
+.book .actions .toggleRead {
+  background-color: rgb(205, 227, 255);
+}
+
+.book.new button, .button {
+  font-size: 20px;
+}
+
+.book .actions {
+  display: flex;
+  margin-top: 10px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay form {
+  box-sizing: border-box;
+  width: 300px;
+  height: 250px;
+  background-color:rgb(197, 207, 207);
+  border: outset rgb(255, 255, 255) 7px;
+
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 40px;
+  padding-top: 20px;
+  padding-left: 40px;
+}
+
+.overlay form .title{
+  font-size: 24px;
+  font-weight: bold;
+}
+
+form .single-input {
+  display: flex;
+}
+
+form label {
+  min-width: 60px;
+  font-weight: bold;
+}
+
+form .button {
+  width: 50%;
+  margin: 15px 0px 0px 50px;
+}
+
+.hidden {
+  display: none;
+}
+
+.flex {
+  display: flex;
+}
