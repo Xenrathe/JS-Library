@@ -1,73 +1,76 @@
-// Book constructor
-function Book(title, author, pages, read) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
+// Book class holds an instance of a single book
+class Book {
+  constructor(title, author, pages, read) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
+  }
 
-  this.info = function() {
+  info() {
     let readStatus = this.read ? 'has been read' : 'not read yet';
     return `<span class="title">${this.title}</span> <span class="author">by ${this.author}</span> <span>${this.pages} pages, ${readStatus}</span>`;
   }
 }
 
-// add book to a myLibrary var
-const myLibrary = [];
-function addBookToLibrary(book) {
-  if (book instanceof Book) {
-    return myLibrary.push(book);
+//Library class holds an instance of a single Library
+//Really, I would be doing some sort of closure / Module pattern - but the assignment is to use classes
+class Library {
+  constructor(books, shelves, name) {
+    this.globalName = name;
+    this.books = books;
+    this.shelves = shelves;
   }
-  else {
-    console.log("ERROR: Cannot add non-book to library");
-  }
-}
 
-//Some test books
-const books = [new Book('Lord of the Rings', 'JRR Tolkien', 500, true), 
-              new Book('The Long Goodbye', 'Raymond Chandler', 300, true),
-              new Book('I, Robot', 'Isaac Asimov', 200, false),
-              new Book('Altered Carbon', 'Richard Morgan', 350, true),
-              new Book('Macbeth', 'Shakespeare', 100, true)];
-
-books.forEach((book) => {
-  addBookToLibrary(book);
-});
-
-// Iterate through the library var and create a .book card for every book
-const shelves = document.querySelector('#shelves');
-function displayLibrary() {
-  shelves.innerHTML = `<div class="book new"><div class="text"><button onclick="toggleHideShow('new-book')">NEW</button></div></div>`
-  let index = 0;
-  myLibrary.forEach((book) => {
-    let readBtnTxt = 'Read';
-    if (book.read) {
-      readBtnTxt = 'Unread';
+  // Internal / private book addition to the books array
+  #addBook(book) {
+    if (book instanceof Book) {
+      this.books.push(book);
     }
-    shelves.innerHTML += `<div class="book" data-index="${index}"><div class="text">${book.info()}
-                          <div class="actions"><button class="toggleRead" onclick="toggleRead(${index})">${readBtnTxt}</button><button class="delete" onclick="deleteBook(${index})">Delete</button>
-                          </div></div></div>`;
-    index += 1;
-  });
-}
+    else {
+      console.log("ERROR: Cannot add non-book to library");
+    }
+  }
 
-function addNewBook(event) {
-  event.preventDefault();
-  var formData = new FormData(event.target);
-  const newBook = new Book(formData.get('btitle'), formData.get('bauthor'), formData.get('bpages'), formData.get('bread') == 'read');
-  addBookToLibrary(newBook);
-  displayLibrary(); //Eventually, for optimization purposes, may need to adjust this so it's not reloading whole list every time
-  toggleHideShow('new-book');
-  event.target.reset();
-}
+  // User will utilize this function via form
+  addBookFromForm(event) {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+    const newBook = new Book(formData.get('btitle'), formData.get('bauthor'), formData.get('bpages'), formData.get('bread') == 'read');
+    this.#addBook(newBook);
+    this.displayLibrary(); //Eventually, for optimization purposes, may need to adjust this so it's not reloading whole list every time
+    toggleHideShow('new-book');
+    event.target.reset();
+  }
 
-function deleteBook(index) {
-  myLibrary.splice(index, 1);
-  displayLibrary();
-}
+  // Remove book from internal books
+  deleteBook(index) {
+    this.books.splice(index, 1);
+    this.displayLibrary();
+  }
 
-function toggleRead(index) {
-  myLibrary[index].read = !myLibrary[index].read;
-  displayLibrary();
+  // Toggles the book's read value between true and false
+  toggleRead(index) {
+    this.books[index].read = !this.books[index].read;
+    this.displayLibrary();
+  }
+
+  // Displays whole library from scratch, including the new book div.
+  // Could be optimized on add/delete/alter on a book-by-book basis
+  displayLibrary() {
+    this.shelves.innerHTML = `<div class="book new"><div class="text"><button onclick="toggleHideShow('new-book')">NEW</button></div></div>`
+    let index = 0;
+    this.books.forEach((book) => {
+      let readBtnTxt = 'Read';
+      if (book.read) {
+        readBtnTxt = 'Unread';
+      }
+      shelves.innerHTML += `<div class="book" data-index="${index}"><div class="text">${book.info()}
+                            <div class="actions"><button class="toggleRead" onclick="${this.globalName}.toggleRead(${index})">${readBtnTxt}</button><button class="delete" onclick="${this.globalName}.deleteBook(${index})">Delete</button>
+                            </div></div></div>`;
+      index += 1;
+    });
+  }
 }
 
 //Add/remove the 'hidden' and 'flex' classes to hide/show
@@ -89,9 +92,10 @@ function toggleHideShow(idName) {
   }
 }
 
-function initialize(){
+//Called exactly once upon page load
+function initialize(library){
   // Load up the initial library
-  displayLibrary();
+  library.displayLibrary();
 
   // Add the overlay closing function
   document.getElementById('new-book').addEventListener('click', function(event) {
@@ -101,7 +105,16 @@ function initialize(){
     }
   });
 
-  document.getElementById("new-book-form").addEventListener("submit", (event) => { addNewBook(event);});
+  document.getElementById("new-book-form").addEventListener("submit", (event) => { library.addBookFromForm(event);});
 }
 
-initialize();
+//Some test books
+const books = [new Book('Lord of the Rings', 'JRR Tolkien', 500, true), 
+  new Book('The Long Goodbye', 'Raymond Chandler', 300, true),
+  new Book('I, Robot', 'Isaac Asimov', 200, false),
+  new Book('Altered Carbon', 'Richard Morgan', 350, true),
+  new Book('Macbeth', 'Shakespeare', 100, true)];
+
+const shelves = document.querySelector('#shelves');
+const myLibrary = new Library(books, shelves, 'myLibrary');
+initialize(myLibrary);
