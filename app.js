@@ -8,7 +8,7 @@ class Book {
   }
 
   info() {
-    let readStatus = this.read ? 'has been read' : 'not read yet';
+    let readStatus = this.read ? "has been read" : "not read yet";
     return `<span class="title">${this.title}</span> <span class="author">by ${this.author}</span> <span>${this.pages} pages, ${readStatus}</span>`;
   }
 }
@@ -26,8 +26,7 @@ class Library {
   #addBook(book) {
     if (book instanceof Book) {
       this.books.push(book);
-    }
-    else {
+    } else {
       console.log("ERROR: Cannot add non-book to library");
     }
   }
@@ -36,10 +35,15 @@ class Library {
   addBookFromForm(event) {
     event.preventDefault();
     var formData = new FormData(event.target);
-    const newBook = new Book(formData.get('btitle'), formData.get('bauthor'), formData.get('bpages'), formData.get('bread') == 'read');
+    const newBook = new Book(
+      formData.get("btitle"),
+      formData.get("bauthor"),
+      formData.get("bpages"),
+      formData.get("bread") == "read"
+    );
     this.#addBook(newBook);
     this.displayLibrary(); //Eventually, for optimization purposes, may need to adjust this so it's not reloading whole list every time
-    toggleHideShow('new-book');
+    toggleHideShow("new-book");
     event.target.reset();
   }
 
@@ -58,15 +62,19 @@ class Library {
   // Displays whole library from scratch, including the new book div.
   // Could be optimized on add/delete/alter on a book-by-book basis
   displayLibrary() {
-    this.shelves.innerHTML = `<div class="book new"><div class="text"><button onclick="toggleHideShow('new-book')">NEW</button></div></div>`
+    this.shelves.innerHTML = `<div class="book new"><div class="text"><button onclick="toggleHideShow('new-book')">NEW</button></div></div>`;
     let index = 0;
     this.books.forEach((book) => {
-      let readBtnTxt = 'Read';
+      let readBtnTxt = "Read";
       if (book.read) {
-        readBtnTxt = 'Unread';
+        readBtnTxt = "Unread";
       }
       shelves.innerHTML += `<div class="book" data-index="${index}"><div class="text">${book.info()}
-                            <div class="actions"><button class="toggleRead" onclick="${this.globalName}.toggleRead(${index})">${readBtnTxt}</button><button class="delete" onclick="${this.globalName}.deleteBook(${index})">Delete</button>
+                            <div class="actions"><button class="toggleRead" onclick="${
+                              this.globalName
+                            }.toggleRead(${index})">${readBtnTxt}</button><button class="delete" onclick="${
+        this.globalName
+      }.deleteBook(${index})">Delete</button>
                             </div></div></div>`;
       index += 1;
     });
@@ -77,44 +85,113 @@ class Library {
 function toggleHideShow(idName) {
   const object = document.querySelector(`#${idName}`);
 
-  if (object == null){
+  if (object == null) {
     console.log(`toggleHideShow failed to find ${idName}`);
     return;
   }
 
-  if (object.classList.contains('hidden')){
-    object.classList.remove('hidden');
-    object.classList.add('flex');
-  }
-  else {
-    object.classList.remove('flex');
-    object.classList.add('hidden');
+  if (object.classList.contains("hidden")) {
+    object.classList.remove("hidden");
+    object.classList.add("flex");
+  } else {
+    object.classList.remove("flex");
+    object.classList.add("hidden");
   }
 }
 
 //Called exactly once upon page load
-function initialize(library){
+function initialize(library) {
   // Load up the initial library
   library.displayLibrary();
 
   // Add the overlay closing function
-  document.getElementById('new-book').addEventListener('click', function(event) {
-    if (event.target === event.currentTarget) {
-        this.classList.remove('flex');
-        this.classList.add('hidden');
+  document
+    .getElementById("new-book")
+    .addEventListener("click", function (event) {
+      if (event.target === event.currentTarget) {
+        this.classList.remove("flex");
+        this.classList.add("hidden");
+      }
+    });
+
+  document
+    .getElementById("new-book-form")
+    .addEventListener("submit", (event) => {
+      library.addBookFromForm(event);
+    });
+}
+
+//Called once upon page load
+//Sets up custom form validation
+function initializeFormValidation() {
+  const form = document.querySelector("#new-book-form");
+  const submitBtn = form.querySelector("input[type='submit']");
+  const errorDiv = form.querySelector(".error");
+  const titleInput = form.querySelector("#btitle");
+  const authorInput = form.querySelector("#bauthor");
+  const pageInput = form.querySelector("#bpages");
+  const inputs = [titleInput, authorInput, pageInput];
+
+  inputs.forEach((input) => {
+    input.addEventListener("input", (event) => {
+      if (assessErrors() > 0) {
+        displayErrors();
+      }
+    });
+  });
+
+  submitBtn.addEventListener("click", (event) => {
+    if (assessErrors() > 0) {
+      displayErrors();
+      event.preventDefault();
     }
   });
 
-  document.getElementById("new-book-form").addEventListener("submit", (event) => { library.addBookFromForm(event);});
+  function assessErrors() {
+    let hasError = 0;
+    errorDiv.innerHTML = "";
+
+    inputs.forEach((input) => {
+      if (!input.validity.valid) {
+        hasError += 1;
+      }
+    });
+
+    console.log("Num errors:" + hasError);
+    return hasError;
+  }
+
+  function displayErrors() {
+    let errorMsgs = "";
+
+    if (titleInput.validity.valueMissing) {
+      errorMsgs = "-Title required.<br>";
+    }
+
+    if (authorInput.validity.valueMissing) {
+      errorMsgs += "-Author required.<br>";
+    }
+
+    if (pageInput.validity.valueMissing) {
+      errorMsgs += "-Page number required.<br>";
+    } else if (pageInput.validity.rangeUnderflow) {
+      errorMsgs += `-Minimum of ${pageInput.min} pages`;
+    }
+
+    errorDiv.innerHTML = errorMsgs;
+  }
 }
 
 //Some test books
-const books = [new Book('Lord of the Rings', 'JRR Tolkien', 500, true), 
-  new Book('The Long Goodbye', 'Raymond Chandler', 300, true),
-  new Book('I, Robot', 'Isaac Asimov', 200, false),
-  new Book('Altered Carbon', 'Richard Morgan', 350, true),
-  new Book('Macbeth', 'Shakespeare', 100, true)];
+const books = [
+  new Book("Lord of the Rings", "JRR Tolkien", 500, true),
+  new Book("The Long Goodbye", "Raymond Chandler", 300, true),
+  new Book("I, Robot", "Isaac Asimov", 200, false),
+  new Book("Altered Carbon", "Richard Morgan", 350, true),
+  new Book("Macbeth", "Shakespeare", 100, true),
+];
 
-const shelves = document.querySelector('#shelves');
-const myLibrary = new Library(books, shelves, 'myLibrary');
+const shelves = document.querySelector("#shelves");
+const myLibrary = new Library(books, shelves, "myLibrary");
 initialize(myLibrary);
+initializeFormValidation();
