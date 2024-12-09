@@ -19,7 +19,7 @@ Library is active on GitHub pages: (https://xenrathe.github.io/JS-Library/)
 - JS: Vanilla
 - Backend: N/A - no backend
 
-![Screenshot of book add form](https://github.com/Xenrathe/JS-BattleTreats/blob/main/NewBook.png?raw=true)
+![Screenshot of book add form](https://github.com/Xenrathe/JS-Library/blob/main/NewBook.png?raw=true)
 
 ### Design Brief
 
